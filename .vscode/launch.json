@@ -1,0 +1,31 @@
+{
+    // 使用 IntelliSense 了解相关属性。 
+    // 悬停以查看现有属性的描述。
+    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+{"name":"Python 调试程序: 当前文件","type":"debugpy","request":"launch","program":"${file}","console":"integratedTerminal"},
+        {
+            "name": "DEBUG",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "FastAPI: Uvicorn", // 给你的调试配置起个名
+            "type": "debugpy", // 调试器类型
+            "request": "launch", // 启动模式
+            "module": "uvicorn", // 要运行的模块
+            "args": [
+                "app_fastapi:app", // 你的应用模块路径，格式为 `文件名:FastAPI实例名`
+                "--reload", // 开发时非常有用，修改代码后自动重启
+                "--host", "localhost", // 主机地址
+                "--port", "8000" // 端口号
+            ],
+            "jinja": true, // 允许调试 Jinja2 模板
+            "justMyCode": false // 建议设为 false，以便在需要时进入第三方库代码
+        }
+    ]
+}

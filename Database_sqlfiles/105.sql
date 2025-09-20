@@ -1,0 +1,91 @@
+USE mindmap;
+
+-- 插入统计学课程的学习单元数据
+INSERT INTO units (unit_id, name, course_id) VALUES
+(21, '统计学基础概念', 105),
+(22, '数据收集与整理', 105),
+(23, '描述性统计分析', 105),
+(24, '概率论基础', 105),
+(25, '统计推断', 105),
+(26, '相关与回归分析', 105);
+
+-- 插入统计学课程的知识点数据
+INSERT INTO knowledge_points (point_id, unit_id, description, difficulty) VALUES
+(96, 21, '统计学定义与发展历程', '低'),
+(97, 21, '统计学基本概念与术语', '低'),
+(98, 21, '数据类型与变量分类', '低'),
+(99, 21, '统计学的应用领域', '低'),
+(100, 22, '数据收集方法与技术', '中'),
+(101, 22, '抽样调查方法与设计', '中'),
+(102, 22, '数据清洗与预处理', '中'),
+(103, 22, '调查问卷设计与实施', '中'),
+(104, 23, '数据可视化与图表展示', '中'),
+(105, 23, '集中趋势度量', '中'),
+(106, 23, '离散程度度量', '中'),
+(107, 23, '分布形态分析', '中'),
+(108, 24, '概率基本概念', '中'),
+(109, 24, '随机变量与概率分布', '高'),
+(110, 24, '常见概率分布', '高'),
+(111, 24, '大数定律与中心极限定理', '高'),
+(112, 25, '参数估计方法', '高'),
+(113, 25, '假设检验原理', '高'),
+(114, 25, '置信区间构建', '高'),
+(115, 25, '方差分析', '高'),
+(116, 26, '相关分析', '中'),
+(117, 26, '一元线性回归', '高'),
+(118, 26, '多元线性回归', '高'),
+(119, 26, '回归诊断与验证', '高');
+
+-- 插入统计学课程的能力项数据
+INSERT INTO capabilities (capability_id, name, category, subcategory, point_id) VALUES
+(96, '统计学概念理解', '理论基础', '知识掌握', 96),
+(97, '术语掌握', '理论基础', '知识掌握', 97),
+(98, '数据分类', '数据技能', '数据准备', 98),
+(99, '应用领域认知', '理论基础', '知识应用', 99),
+(100, '数据收集技术', '数据技能', '数据收集', 100),
+(101, '抽样设计', '数据技能', '数据收集', 101),
+(102, '数据清洗', '数据技能', '数据准备', 102),
+(103, '问卷设计', '数据技能', '数据收集', 103),
+(104, '数据可视化', '数据技能', '数据展示', 104),
+(105, '集中趋势分析', '分析能力', '描述分析', 105),
+(106, '离散程度分析', '分析能力', '描述分析', 106),
+(107, '分布形态分析', '分析能力', '描述分析', 107),
+(108, '概率理解', '理论基础', '知识掌握', 108),
+(109, '随机变量应用', '分析能力', '概率分析', 109),
+(110, '概率分布应用', '分析能力', '概率分析', 110),
+(111, '极限定理理解', '理论基础', '知识掌握', 111),
+(112, '参数估计能力', '分析能力', '推断分析', 112),
+(113, '假设检验能力', '分析能力', '推断分析', 113),
+(114, '区间估计能力', '分析能力', '推断分析', 114),
+(115, '方差分析能力', '分析能力', '推断分析', 115),
+(116, '相关分析能力', '分析能力', '关系分析', 116),
+(117, '一元回归建模', '建模能力', '模型构建', 117),
+(118, '多元回归建模', '建模能力', '模型构建', 118),
+(119, '回归诊断能力', '问题解决', '诊断修复', 119);
+
+-- 插入统计学课程的学习资源数据（全部为markdown格式）
+INSERT INTO resources (resource_id, capability_id, name, type, url) VALUES
+(96, 96, '统计学导论', 'markdown', '/resources/statistics_introduction.md'),
+(97, 97, '统计学基本术语', 'markdown', '/resources/statistical_terminology.md'),
+(98, 98, '数据类型与分类', 'markdown', '/resources/data_types_classification.md'),
+(99, 99, '统计学应用领域', 'markdown', '/resources/statistics_applications.md'),
+(100, 100, '数据收集方法', 'markdown', '/resources/data_collection_methods.md'),
+(101, 101, '抽样调查技术', 'markdown', '/resources/sampling_techniques.md'),
+(102, 102, '数据清洗与预处理', 'markdown', '/resources/data_cleaning_preprocessing.md'),
+(103, 103, '调查问卷设计指南', 'markdown', '/resources/questionnaire_design.md'),
+(104, 104, '数据可视化技术', 'markdown', '/resources/data_visualization_techniques.md'),
+(105, 105, '集中趋势度量方法', 'markdown', '/resources/central_tendency_measures.md'),
+(106, 106, '离散程度度量方法', 'markdown', '/resources/dispersion_measures.md'),
+(107, 107, '分布形态分析', 'markdown', '/resources/distribution_analysis.md'),
+(108, 108, '概率论基础', 'markdown', '/resources/probability_basics.md'),
+(109, 109, '随机变量与应用', 'markdown', '/resources/random_variables.md'),
+(110, 110, '常见概率分布', 'markdown', '/resources/probability_distributions.md'),
+(111, 111, '大数定律与中心极限定理', 'markdown', '/resources/law_of_large_numbers_clt.md'),
+(112, 112, '参数估计方法', 'markdown', '/resources/parameter_estimation.md'),
+(113, 113, '假设检验原理与应用', 'markdown', '/resources/hypothesis_testing.md'),
+(114, 114, '置信区间构建', 'markdown', '/resources/confidence_intervals.md'),
+(115, 115, '方差分析教程', 'markdown', '/resources/analysis_of_variance.md'),
+(116, 116, '相关分析技术', 'markdown', '/resources/correlation_analysis.md'),
+(117, 117, '一元线性回归', 'markdown', '/resources/simple_linear_regression.md'),
+(118, 118, '多元线性回归', 'markdown', '/resources/multiple_linear_regression.md'),
+(119, 119, '回归诊断与验证', 'markdown', '/resources/regression_diagnostics.md');

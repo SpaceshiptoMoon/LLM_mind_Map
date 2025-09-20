@@ -1,0 +1,7 @@
+{
+    "host": "localhost",
+    "user": "root",
+    "password": "whb990502",
+    "database": "mindmap",
+    "charset": "utf8mb4"
+}

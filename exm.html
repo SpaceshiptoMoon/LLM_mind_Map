@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程图谱 - jsmind思维导图</title>
+    <link type="text/css" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsmind/style/jsmind.css" />
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jsmind/js/jsmind.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 100vw;
+            margin: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            min-height: 100vh;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        h1 {
+            font-size: 32px;
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .content {
+            display: flex;
+            height: calc(100vh - 140px);
+        }
+
+        #jsmind_container {
+            flex: 1;
+            position: relative;
+            background: linear-gradient(45deg, #f0f2f5 0%, #ffffff 100%);
+        }
+
+        .sidebar {
+            width: 380px;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            border-left: 1px solid #e2e8f0;
+            overflow-y: auto;
+            box-shadow: -5px 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-section {
+            padding: 25px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            margin-right: 10px;
+            border-radius: 2px;
+        }
+
+        .course-selector select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 16px;
+            background: white;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .course-selector select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 50px 14px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-50%) scale(1.05);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .search-results {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 10px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            display: none;
+        }
+
+        .result-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f5f9;
+            transition: all 0.2s ease;
+        }
+
+        .result-item:hover {
+            background: linear-gradient(90deg, #667eea10, #764ba210);
+            color: #667eea;
+        }
+
+        .node-info {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            min-height: 300px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .node-info h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+            position: relative;
+        }
+
+        .node-info h3::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 60px;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .info-item {
+            margin-bottom: 16px;
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-item strong {
+            color: #2d3748;
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .resources-list a {
+            display: block;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            background: linear-gradient(90deg, #667eea10, #764ba210);
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #667eea;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .resources-list a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s;
+        }
+
+        .resources-list a:hover::before {
+            left: 100%;
+        }
+
+        .resources-list a:hover {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .legend {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            padding: 8px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .legend-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+            transform: translateX(5px);
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            margin-right: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* jsmind 自定义样式 */
+        .jsmind-inner {
+            background: transparent !important;
+        }
+
+        /* 根节点样式 */
+        jmnode[nodeid="root"] {
+            background: linear-gradient(135deg, #667eea, #764ba2) !important;
+            color: white !important;
+            border-radius: 20px !important;
+            padding: 15px 25px !important;
+            font-weight: bold !important;
+            font-size: 18px !important;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4) !important;
+            border: 3px solid rgba(255, 255, 255, 0.3) !important;
+        }
+
+        /* 课程单元节点样式 */
+        jmnode[nodeid^="unit_"] {
+            background: linear-gradient(135deg, #4299e1, #3182ce) !important;
+            color: white !important;
+            border-radius: 15px !important;
+            padding: 12px 20px !important;
+            font-weight: 600 !important;
+            font-size: 16px !important;
+            box-shadow: 0 6px 20px rgba(66, 153, 225, 0.3) !important;
+            border: 2px solid rgba(255, 255, 255, 0.2) !important;
+        }
+
+        /* 高难度知识点样式 */
+        jmnode[nodeid^="point_"][data-difficulty="高"] {
+            background: linear-gradient(135deg, #f56565, #e53e3e) !important;
+            color: white !important;
+            border-radius: 12px !important;
+            padding: 10px 16px !important;
+            font-weight: 500 !important;
+            box-shadow: 0 4px 15px rgba(245, 101, 101, 0.3) !important;
+            border: 2px solid rgba(255, 255, 255, 0.2) !important;
+        }
+
+        /* 中等难度知识点样式 */
+        jmnode[nodeid^="point_"][data-difficulty="中等"] {
+            background: linear-gradient(135deg, #ed8936, #dd6b20) !important;
+            color: white !important;
+            border-radius: 12px !important;
+            padding: 10px 16px !important;
+            font-weight: 500 !important;
+            box-shadow: 0 4px 15px rgba(237, 137, 54, 0.3) !important;
+            border: 2px solid rgba(255, 255, 255, 0.2) !important;
+        }
+
+        /* 低难度知识点样式 */
+        jmnode[nodeid^="point_"]:not([data-difficulty="高"]):not([data-difficulty="中等"]) {
+            background: linear-gradient(135deg, #48bb78, #38a169) !important;
+            color: white !important;
+            border-radius: 12px !important;
+            padding: 10px 16px !important;
+            font-weight: 500 !important;
+            box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3) !important;
+            border: 2px solid rgba(255, 255, 255, 0.2) !important;
+        }
+
+        /* 能力项节点样式 */
+        jmnode[nodeid^="cap_"] {
+            background: linear-gradient(135deg, #9f7aea, #805ad5) !important;
+            color: white !important;
+            border-radius: 25px !important;
+            padding: 8px 18px !important;
+            font-weight: 500 !important;
+            font-size: 14px !important;
+            box-shadow: 0 4px 12px rgba(159, 122, 234, 0.3) !important;
+            border: 2px solid rgba(255, 255, 255, 0.2) !important;
+        }
+
+        /* 资源项节点样式 */
+        jmnode[nodeid^="res_"] {
+            background: linear-gradient(135deg, #38b2ac, #319795) !important;
+            color: white !important;
+            border-radius: 20px !important;
+            padding: 6px 14px !important;
+            font-size: 12px !important;
+            box-shadow: 0 3px 10px rgba(56, 178, 172, 0.3) !important;
+            border: 2px solid rgba(255, 255, 255, 0.2) !important;
+            cursor: pointer !important;
+        }
+
+        /* 悬停效果 */
+        jmnode:hover {
+            transform: scale(1.05) !important;
+            transition: all 0.3s ease !important;
+        }
+
+        /* 选中效果 */
+        jmnode.selected {
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.6) !important;
+            border: 3px solid #667eea !important;
+        }
+
+        /* 连接线样式 */
+        .jsmind-inner svg path {
+            stroke: #cbd5e0 !important;
+            stroke-width: 2 !important;
+        }
+
+        .error-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            width: 500px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-content h2 {
+            color: #e53e3e;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .modal-button {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .modal-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 14px;
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+            border-top: 1px solid #e2e8f0;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 300px;
+            }
+
+            .legend {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+                height: auto;
+            }
+
+            .sidebar {
+                width: 100%;
+                order: -1;
+            }
+
+            #jsmind_container {
+                height: 400px;
+            }
+        }
+
+        /* 展开时的图标（有子节点并展开） */
+        jmexpander {
+            background-image: url("	https://image.zhihuishu.com/zhs/b2cm/base1/202407/b9065973938a4a43a5db930aaf354a86.png");
+            /* 自定义展开图标 */
+        }
+
+        /* 收起时的图标（有子节点但未展开） */
+        jmexpander {
+            background-image: url("	https://image.zhihuishu.com/zhs/b2cm/base1/202407/b9065973938a4a43a5db930aaf354a86.png");
+            /* 自定义收起图标 */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>课程图谱可视化系统</h1>
+            <p class="subtitle">基于jsmind的智能思维导图 - 探索知识之间的深层联系</p>
+        </header>
+
+        <div class="content">
+            <div id="jsmind_container"></div>
+
+            <div class="sidebar">
+                <div class="sidebar-section">
+                    <h3 class="section-title">课程选择</h3>
+                    <div class="course-selector">
+                        <select id="courseSelect">
+                            <option value="101">🖥️ 计算机科学导论 (101)</option>
+                            <option value="102">📊 数据结构与算法 (102)</option>
+                            <option value="103">🗄️ 数据库系统原理 (103)</option>
+                            <option value="104">🌐 计算机网络 (104)</option>
+                            <option value="105">⚙️ 操作系统 (105)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3 class="section-title">智能搜索</h3>
+                    <div class="search-box">
+                        <input type="text" class="search-input" id="searchInput" placeholder="搜索能力项、知识点...">
+                        <button class="search-btn" id="searchBtn">🔍</button>
+                        <div id="searchResults" class="search-results"></div>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3 class="section-title">节点信息</h3>
+                    <div class="node-info">
+                        <div id="infoContent">
+                            <p style="color: #666; text-align: center; padding: 40px 20px;">
+                                🎯 点击思维导图中的任意节点<br>查看详细信息和相关资源
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3 class="section-title">图例说明</h3>
+                    <div class="legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                            </div>
+                            <span>课程根节点</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: linear-gradient(135deg, #4299e1, #3182ce);">
+                            </div>
+                            <span>课程单元</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: linear-gradient(135deg, #f56565, #e53e3e);">
+                            </div>
+                            <span>高难度知识点</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: linear-gradient(135deg, #ed8936, #dd6b20);">
+                            </div>
+                            <span>中难度知识点</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: linear-gradient(135deg, #48bb78, #38a169);">
+                            </div>
+                            <span>低难度知识点</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: linear-gradient(135deg, #9f7aea, #805ad5);">
+                            </div>
+                            <span>能力项</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: linear-gradient(135deg, #38b2ac, #319795);">
+                            </div>
+                            <span>学习资源</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>© 2024 天择教育科技公司 - 课程图谱系统 v2.0 | 基于jsmind构建的智能学习导图</p>
+        </footer>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p style="font-size: 18px; color: #667eea;">正在加载课程图谱数据...</p>
+        </div>
+
+        <div class="error-modal" id="errorModal" style="display: none;">
+            <div class="modal-content">
+                <h2>⚠️ 数据加载失败</h2>
+                <p>无法从后端服务获取数据，请检查：</p>
+                <ul style="text-align: left; margin: 20px 0; padding-left: 20px; color: #666;">
+                    <li>后端服务是否正常运行在 localhost:8000</li>
+                    <li>网络连接是否正常</li>
+                    <li>是否存在跨域访问问题</li>
+                </ul>
+                <button class="modal-button" id="modalBtn">我知道了</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // 获取DOM元素
+            const jsmindContainer = document.getElementById('jsmind_container')
+            const searchInput = document.getElementById('searchInput')
+            const searchBtn = document.getElementById('searchBtn')
+            const searchResults = document.getElementById('searchResults')
+            const infoContent = document.getElementById('infoContent')
+            const loadingEl = document.getElementById('loading')
+            const errorModal = document.getElementById('errorModal')
+            const modalBtn = document.getElementById('modalBtn')
+            const courseSelect = document.getElementById('courseSelect')
+            // 全局变量
+            let currentCourseId = null
+            let jsmindInstance = null
+            let rawData = null
+            // API基础URL
+            const API_BASE_URL = 'http://192.168.2.221:8000'
+            // jsmind选项配置
+            const jsmindOptions = {
+                container: 'jsmind_container',
+                editable: false,
+                support_html: true,
+                view: {
+                    hmargin: 100,
+                    vmargin: 50,
+                    line_width: 2,
+                    line_color: '#cbd5e0',
+                    draggable: true,
+                    hide_scrollbars_when_dragging: true
+                },
+                shortcut: {
+                    enable: true,
+                    handles: {},
+                },
+                layout: {
+                    hspace: 80,
+                    vspace: 20,
+                    pspace: 15
+                },
+                selection: {
+                    enable: false
+                },
+            }
+            // 获取思维导图数据
+            function fetchMindmapData(courseId) {
+                return fetch(`${API_BASE_URL}/mindmap/${courseId}`)
+                    .then(response => {
+                        if (!response.ok) throw new Error('后端服务不可用')
+                        return response.json()
+                    })
+            }
+
+            // 转换数据格式为jsmind格式
+            function convertToJsmindFormat(data) {
+                function processNode(node) {
+                    const jsmindNode = {
+                        id: node.id,
+                        topic: node.topic,
+                        data: node.data || {}
+                    }
+                    // 设置难度属性用于CSS选择
+                    if (node.id.startsWith('point_')) {
+                        const difficultyMatch = node.topic.match(/难度:\s*(.*?)\)/)
+                        if (difficultyMatch) {
+                            jsmindNode.data.difficulty = difficultyMatch[1].trim()
+                        }
+                    }
+                    if (node.children && node.children.length > 0) {
+                        jsmindNode.children = node.children.map(child => processNode(child))
+                    }
+
+                    return jsmindNode
+                }
+                return {
+                    meta: data.meta,
+                    format: "node_tree",
+                    data: processNode(data.data)
+                }
+            }
+
+            // 应用节点样式
+            function applyNodeStyles() {
+                setTimeout(() => {
+                    // 为知识点节点设置难度属性
+                    document.querySelectorAll('jmnode[nodeid^="point_"]').forEach(node => {
+                        const nodeId = node.getAttribute('nodeid')
+                        const nodeData = findNodeData(rawData.data, nodeId)
+                        if (nodeData) {
+                            const difficultyMatch = nodeData.topic.match(/难度:\s*(.*?)\)/)
+                            if (difficultyMatch) {
+                                node.setAttribute('data-difficulty', difficultyMatch[1].trim())
+                            }
+                        }
+                    })
+                }, 100)
+            }
+
+            // 查找节点数据
+            function findNodeData(node, nodeId) {
+                if (node.id === nodeId) {
+                    return node
+                }
+                if (node.children) {
+                    for (let child of node.children) {
+                        const found = findNodeData(child, nodeId)
+                        if (found) return found
+                    }
+                }
+                return null
+            }
+
+            // 渲染思维导图
+            function renderMindmap(data) {
+                if (jsmindInstance) {
+                    jsmindInstance = null
+                    document.getElementById('jsmind_container').innerHTML = '' // 清空容器
+                }
+                rawData = data
+                const jsmindData = convertToJsmindFormat(data)
+                // 创建jsmind实例
+                jsmindInstance = new jsMind(jsmindOptions)
+                jsmindInstance.show(jsmindData)
+                collapseAll()
+                // 应用自定义样式
+                applyNodeStyles()
+                // 绑定事件
+                bindEvents()
+            }
+            // 绑定事件
+            function bindEvents() {
+                // 节点点击事件
+                jsmindInstance.add_event_listener(function (type, data) {
+                    if (type === 'select_node') {
+                        handleNodeSelect(data)
+                    } else if (type === 'click_node') {
+                        handleNodeClick(data)
+                    }
+                    if (type == jsMind.event_type.select) {
+                        const node = data.node;
+                        console.log('node', node);
+                        jsmindInstance.toggle_node(node);
+
+                    }
+                })
+            }
+            let nodeIdCounter = 1
+
+            function addNextChild(node) {
+                // 生成唯一 id
+                const newId = "node_" + (nodeIdCounter++)
+                // 添加子节点
+                jsmindInstance.add_node(node.id, newId, "新子节点 " + newId)
+                // 如果需要马上选中它
+                jsmindInstance.select_node(newId)
+            }
+            // 处理节点选择
+            function handleNodeSelect(nodeData) {
+                updateNodeInfo(nodeData)
+            }
+
+            // 处理节点点击
+            function handleNodeClick(nodeData) {
+                // 如果是资源节点且有URL，打开链接
+                if (nodeData.id.startsWith('res_') && nodeData.data && nodeData.data.url) {
+                    window.open(nodeData.data.url, '_blank')
+                }
+            }
+
+            // 更新节点信息
+            function updateNodeInfo(nodeData) {
+                const fullNodeData = findNodeData(rawData.data, nodeData.id)
+                if (!fullNodeData) return
+                let html = ''
+                if (nodeData.id.startsWith('cap_')) {
+                    html = `
+                        <h3>🎯 ${fullNodeData.topic}</h3>
+                        <div class="info-item">
+                            <strong>📋 能力项ID</strong>
+                            <span>${fullNodeData.id}</span>
+                        </div>
+                        <div class="info-item">
+                            <strong>🏷️ 能力项类型</strong>
+                            <span>${fullNodeData.topic.split(':')[0]}</span>
+                        </div>
+                    `
+
+                    if (fullNodeData.children && fullNodeData.children.length > 0) {
+                        html += `
+                            <div class="resources-list">
+                                <strong>📚 相关资源</strong>
+                        `
+                        fullNodeData.children.forEach(res => {
+                            html += `<a href="${res.data?.url || '#'}" target="_blank">📖 ${res.topic}</a>`
+                        })
+                        html += `</div>`
+                    }
+                } else if (nodeData.id.startsWith('point_')) {
+                    const difficultyMatch = fullNodeData.topic.match(/难度:\s*(.*?)\)/)
+                    const difficulty = difficultyMatch ? difficultyMatch[1].trim() : '未知'
+                    const difficultyEmoji = difficulty === '高' ? '🔴' : difficulty === '中等' ? '🟡' : '🟢'
+
+                    html = `
+                        <h3>📍 ${fullNodeData.topic}</h3>
+                        <div class="info-item">
+                            <strong>${difficultyEmoji} 难度级别</strong>
+                            <span>${difficulty}</span>
+                        </div>
+                    `
+
+                    if (fullNodeData.children && fullNodeData.children.length > 0) {
+                        html += `
+                            <div class="info-item">
+                                <strong>💡 相关能力项</strong>
+                                <ul style="padding-left: 20px; margin-top: 8px; list-style-type: none;">
+                        `
+                        fullNodeData.children.forEach(cap => {
+                            html += `<li style="margin-bottom: 5px;">🎯 ${cap.topic}</li>`
+                        })
+                        html += `</ul></div>`
+                    }
+                } else if (nodeData.id.startsWith('unit_')) {
+                    html = `
+                        <h3>📂 ${fullNodeData.topic}</h3>
+                        <div class="info-item">
+                            <strong>📝 单元描述</strong>
+                            <span>这是一个课程单元，包含多个相关知识点</span>
+                        </div>
+                    `
+
+                    if (fullNodeData.children && fullNodeData.children.length > 0) {
+                        html += `
+                            <div class="info-item">
+                                <strong>📊 包含知识点 (${fullNodeData.children.length}个)</strong>
+                                <ul style="padding-left: 20px; margin-top: 8px; list-style-type: none; max-height: 200px; overflow-y: auto;">
+                        `
+                        fullNodeData.children.forEach(point => {
+                            const pointDifficulty = point.topic.match(/难度:\s*(.*?)\)/)
+                            const emoji = pointDifficulty ?
+                                (pointDifficulty[1].trim() === '高' ? '🔴' :
+                                    pointDifficulty[1].trim() === '中等' ? '🟡' : '🟢') : '📍'
+                            html += `<li style="margin-bottom: 5px;">${emoji} ${point.topic}</li>`
+                        })
+                        html += `</ul></div>`
+                    }
+                } else if (nodeData.id === 'root') {
+                    const courseId = fullNodeData.topic.match(/课程ID:\s*(\d+)/)?.[1] || '未知'
+                    html = `
+                        <h3>🏛️ ${fullNodeData.topic}</h3>
+                        <div class="info-item">
+                            <strong>🆔 课程编号</strong>
+                            <span>${courseId}</span>
+                        </div>
+                        <div class="info-item">
+                            <strong>👨‍🏫 课程信息</strong>
+                            <span>作者: ${rawData.meta.author} | 版本: ${rawData.meta.version}</span>
+                        </div>
+                    `
+
+                    if (fullNodeData.children && fullNodeData.children.length > 0) {
+                        html += `
+                            <div class="info-item">
+                                <strong>📚 课程单元 (${fullNodeData.children.length}个)</strong>
+                                <ul style="padding-left: 20px; margin-top: 8px; list-style-type: none;">
+                        `
+                        fullNodeData.children.forEach((unit, index) => {
+                            html += `<li style="margin-bottom: 5px;">📂 ${index + 1}. ${unit.topic}</li>`
+                        })
+                        html += `</ul></div>`
+                    }
+                } else if (nodeData.id.startsWith('res_')) {
+                    html = `
+                        <h3>📖 ${fullNodeData.topic}</h3>
+                        <div class="info-item">
+                            <strong>🔗 资源类型</strong>
+                            <span>学习资源</span>
+                        </div>
+                    `
+
+                    if (fullNodeData.data && fullNodeData.data.url) {
+                        html += `
+                            <div class="info-item">
+                                <strong>🌐 访问链接</strong>
+                                <a href="${fullNodeData.data.url}" target="_blank" style="color: #667eea; text-decoration: none;">
+                                    点击访问资源 →
+                                </a>
+                            </div>
+                        `
+                    }
+                } else {
+                    html = `
+                        <h3>ℹ️ 节点信息</h3>
+                        <div class="info-item">
+                            <strong>📄 节点内容</strong>
+                            <span>${fullNodeData.topic}</span>
+                        </div>
+                    `
+                }
+
+                infoContent.innerHTML = html
+            }
+
+            // 搜索功能
+            function searchCapabilities() {
+                const keyword = searchInput.value.trim().toLowerCase()
+                if (!keyword) {
+                    searchResults.style.display = 'none'
+                    return
+                }
+
+                const matchingNodes = []
+
+                function findMatchingNodes(node) {
+                    if (node.topic.toLowerCase().includes(keyword)) {
+                        matchingNodes.push({
+                            id: node.id,
+                            topic: node.topic,
+                            type: getNodeType(node.id)
+                        })
+                    }
+
+                    if (node.children) {
+                        node.children.forEach(child => findMatchingNodes(child))
+                    }
+                }
+
+                if (rawData && rawData.data) {
+                    findMatchingNodes(rawData.data)
+                }
+
+                // 显示搜索结果
+                if (matchingNodes.length > 0) {
+                    let resultsHtml = ''
+                    matchingNodes.forEach(node => {
+                        const emoji = getNodeEmoji(node.type)
+                        resultsHtml += `
+                            <div class="result-item" data-id="${node.id}">
+                                ${emoji} ${node.topic}
+                                <small style="display: block; color: #666; margin-top: 2px;">${node.type}</small>
+                            </div>
+                        `
+                    })
+                    searchResults.innerHTML = resultsHtml
+                    searchResults.style.display = 'block'
+
+                    // 添加点击事件
+                    document.querySelectorAll('.result-item').forEach(item => {
+                        item.addEventListener('click', function () {
+                            const nodeId = this.getAttribute('data-id')
+                            focusOnNode(nodeId)
+                            searchResults.style.display = 'none'
+                            searchInput.value = ''
+                        })
+                    })
+                } else {
+                    searchResults.innerHTML = '<div class="result-item">🔍 未找到匹配的节点</div>'
+                    searchResults.style.display = 'block'
+                }
+            }
+
+            // 获取节点类型
+            function getNodeType(nodeId) {
+                if (nodeId === 'root') return '课程根节点'
+                if (nodeId.startsWith('unit_')) return '课程单元'
+                if (nodeId.startsWith('point_')) return '知识点'
+                if (nodeId.startsWith('cap_')) return '能力项'
+                if (nodeId.startsWith('res_')) return '学习资源'
+                return '其他节点'
+            }
+
+            // 获取节点emoji
+            function getNodeEmoji(nodeType) {
+                const emojiMap = {
+                    '课程根节点': '🏛️',
+                    '课程单元': '📂',
+                    '知识点': '📍',
+                    '能力项': '🎯',
+                    '学习资源': '📖',
+                    '其他节点': 'ℹ️'
+                }
+                return emojiMap[nodeType] || 'ℹ️'
+            }
+
+            // 聚焦到指定节点
+            function focusOnNode(nodeId) {
+                if (jsmindInstance) {
+                    const node = jsmindInstance.get_node(nodeId)
+                    if (node) {
+                        jsmindInstance.select_node(node)
+                        jsmindInstance.set_center()
+                    }
+                }
+            }
+
+            // 加载课程数据
+            function loadCourseData(courseId) {
+                loadingEl.style.display = 'flex'
+                infoContent.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">正在加载课程数据...</p>'
+                fetchMindmapData(courseId)
+                    .then(data => {
+                        loadingEl.style.display = 'none'
+                        renderMindmap(data)
+                    })
+                    .catch(error => {
+                        loadingEl.style.display = 'none'
+                        errorModal.style.display = 'flex'
+                        // 使用模拟数据
+                        setTimeout(() => {
+                            loadMockData(courseId)
+                        }, 2000)
+                    })
+            }
+
+            // 模拟数据
+            function loadMockData(courseId) {
+                const mockData = {
+                    meta: {
+                        name: `课程 ${courseId}`,
+                        author: "系统管理员",
+                        version: "1.0"
+                    },
+                    data: {
+                        id: "root",
+                        topic: `课程名称: 计算机基础 (课程ID: ${courseId})`,
+
+                        children: [
+                            {
+                                id: "unit_1",
+                                topic: "第一单元: 计算机基础概念",
+                                children: [
+                                    {
+                                        id: "point_1",
+                                        topic: "计算机组成原理 (难度: 中等)",
+                                        children: [
+                                            {
+                                                id: "cap_1",
+                                                topic: "理解能力: 掌握计算机基本组成",
+                                                children: [
+                                                    {
+                                                        id: "res_1",
+                                                        topic: "教学视频: 计算机组成",
+                                                        data: { url: "https://example.com/video1" }
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        id: "point_2",
+                                        topic: "二进制数系统 (难度: 高)",
+                                        children: [
+                                            {
+                                                id: "cap_2",
+                                                topic: "计算能力: 二进制转换",
+                                                children: [
+                                                    {
+                                                        id: "res_2",
+                                                        topic: "练习题集: 进制转换",
+                                                        data: { url: "https://example.com/exercises" }
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                id: "unit_2",
+                                topic: "第二单元: 程序设计基础",
+                                children: [
+                                    {
+                                        id: "point_3",
+                                        topic: "变量与数据类型 (难度: 低)",
+                                        children: [
+                                            {
+                                                id: "cap_3",
+                                                topic: "编程能力: 变量声明与使用"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+
+                errorModal.style.display = 'none'
+                renderMindmap(mockData)
+            }
+            //监听点击
+
+            // 初始化应用
+            function initApp() {
+
+                const urlParams = new URLSearchParams(window.location.search)
+                const initialCourseId = urlParams.get('course_id') || '101'
+
+                courseSelect.value = initialCourseId
+                currentCourseId = initialCourseId
+
+                loadCourseData(initialCourseId)
+            }
+            // 闭合
+            function collapseAll() {
+                if (jsmindInstance) jsmindInstance.collapse_all()
+            }
+            // 事件监听器
+            modalBtn.addEventListener('click', function () {
+                errorModal.style.display = 'none'
+            })
+
+            courseSelect.addEventListener('change', function () {
+                const newCourseId = this.value
+                if (newCourseId !== currentCourseId) {
+                    currentCourseId = newCourseId
+                    loadCourseData(newCourseId)
+
+                    const url = new URL(window.location)
+                    url.searchParams.set('course_id', newCourseId)
+                    window.history.pushState({}, '', url)
+                }
+            })
+
+            searchBtn.addEventListener('click', searchCapabilities)
+            searchInput.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    searchCapabilities()
+                }
+            })
+
+            // 点击空白处隐藏搜索结果
+            document.addEventListener('click', function (e) {
+                if (!searchResults.contains(e.target) && !searchInput.contains(e.target) && !searchBtn.contains(e.target)) {
+                    searchResults.style.display = 'none'
+                }
+            })
+
+            // 窗口大小变化时重新调整
+            window.addEventListener('resize', function () {
+                if (jsmindInstance) {
+                    setTimeout(() => {
+                        jsmindInstance.set_center()
+                    }, 100)
+                }
+            })
+
+            // 启动应用
+            initApp()
+        });
+    </script>
+</body>
+
+</html>

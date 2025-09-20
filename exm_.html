@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程图谱 - 思维导图</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4efe9 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(90deg, #2c3e50 0%, #4ca1af 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .content {
+            display: flex;
+            min-height: 700px;
+        }
+
+        #mindmap {
+            flex: 1;
+            min-height: 700px;
+            border-right: 1px solid #eee;
+        }
+
+        .sidebar {
+            width: 350px;
+            padding: 20px;
+            background: #fafafa;
+            overflow-y: auto;
+        }
+
+        .search-box {
+            margin-bottom: 25px;
+        }
+
+        .search-box input, .search-box select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .search-box button {
+            width: 100%;
+            padding: 12px;
+            background: #4caaf;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        .search-box button:hover {
+            background: #3d8c99;
+        }
+
+        .node-info {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            min-height: 300px;
+        }
+
+        .node-info h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .info-item {
+            margin-bottom: 12px;
+        }
+
+        .info-item strong {
+            color: #2c3e50;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .resources-list {
+            margin-top: 15px;
+        }
+
+        .resources-list a {
+            display: block;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            background: #f0f7ff;
+            border-left: 3px solid #4ca1af;
+            text-decoration: none;
+            color: #2c3e50;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .resources-list a:hover {
+            background: #e0efff;
+            border-left-color: #2c3e50;
+        }
+
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #4ca1af;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .error-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            width: 450px;
+            text-align: center;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-content h2 {
+            color: #e74c3c;
+            margin-bottom: 15px;
+            font-size: 22px;
+        }
+
+        .modal-content p {
+            margin-bottom: 25px;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        .modal-button {
+            padding: 12px 25px;
+            background: #4ca1af;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        .modal-button:hover {
+            background: #3d8c99;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #777;
+            font-size: 14px;
+            border-top: 1px solid #eee;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            margin-right: 8px;
+        }
+
+        .node-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 10px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            padding: 10px;
+        }
+
+        .node-list-item {
+            padding: 5px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .node-list-item:hover {
+            background-color: #f0f7ff;
+        }
+        
+        .course-selector {
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>课程图谱可视化系统</h1>
+            <p class="subtitle">探索课程单元、知识点与能力项的关系</p>
+        </header>
+
+        <div class="content">
+            <div id="mindmap"></div>
+
+            <div class="sidebar">
+                <div class="course-selector">
+                    <select id="courseSelect">
+                        <option value="101">计算机科学导论 (101)</option>
+                        <option value="102">数据结构与算法 (102)</option>
+                        <option value="103">数据库系统原理 (103)</option>
+                        <option value="104">计算机网络 (104)</option>
+                        <option value="105">操作系统 (105)</option>
+                    </select>
+                </div>
+                
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="输入能力项名称或描述...">
+                    <button id="searchBtn">搜索能力项</button>
+                    <div id="searchResults" class="node-list" style="display: none;"></div>
+                </div>
+
+                <div class="node-info">
+                    <h3>节点信息</h3>
+                    <div id="infoContent">
+                        <p>点击思维导图中的节点查看详细信息</p>
+                    </div>
+                </div>
+
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #5470c6;"></div>
+                        <span>课程单元</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #ee6666;"></div>
+                        <span>高难度知识点</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #fac858;"></div>
+                        <span>中难度知识点</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #73c0de;"></div>
+                        <span>低难度知识点</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #91cc75;"></div>
+                        <span>能力项</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #9a60b4;"></div>
+                        <span>资源项</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>© 2023 天择教育科技公司 - 课程图谱系统 v1.0</p>
+        </footer>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>正在加载课程图谱数据...</p>
+        </div>
+
+        <div class="error-modal" id="errorModal" style="display: none;">
+            <div class="modal-content">
+                <h2>数据获取失败</h2>
+                <p>无法从后端服务获取数据，请检查：</p>
+                <ul style="text-align: left; margin: 15px 0 20px; padding-left: 20px;">
+                    <li>后端服务是否正常运行在 localhost:8000</li>
+                    <li>是否已启动后端服务器</li>
+                    <li>是否存在跨域访问问题</li>
+                </ul>
+                <button class="modal-button" id="modalBtn">确定</button>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                // 获取DOM元素
+                const mindmapEl = document.getElementById('mindmap');
+                const searchInput = document.getElementById('searchInput');
+                const searchBtn = document.getElementById('searchBtn');
+                const searchResults = document.getElementById('searchResults');
+                const infoContent = document.getElementById('infoContent');
+                const loadingEl = document.getElementById('loading');
+                const errorModal = document.getElementById('errorModal');
+                const modalBtn = document.getElementById('modalBtn');
+                const courseSelect = document.getElementById('courseSelect');
+
+                // 当前课程ID和图表实例
+                let currentCourseId = null;
+                let chart = null;
+                let processedData = null;
+
+                // API基础URL
+                const API_BASE_URL = 'http://192.168.2.221:8000';
+
+                // 获取思维导图数据
+                function fetchMindmapData(courseId) {
+                    return fetch(`${API_BASE_URL}/mindmap/${courseId}`)
+                        .then(response => {
+                            if (!response.ok) throw new Error('后端服务不可用');
+                            return response.json();
+                        });
+                }
+
+                // 初始化应用
+                function initApp() {
+                    // 从URL获取课程ID，默认为101
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const initialCourseId = urlParams.get('course_id') || '101';
+                    
+                    // 设置下拉菜单选中项
+                    courseSelect.value = initialCourseId;
+                    currentCourseId = initialCourseId;
+                    
+                    // 加载初始课程数据
+                    loadCourseData(initialCourseId);
+                }
+
+                // 加载课程数据
+                function loadCourseData(courseId) {
+                    loadingEl.style.display = 'flex';
+                    infoContent.innerHTML = '<p>正在加载课程数据...</p>';
+                    
+                    fetchMindmapData(courseId)
+                        .then(data => {
+                            loadingEl.style.display = 'none';
+                            processedData = processNode(data.data);
+                            renderMindmap(data);
+                        })
+                        .catch(error => {
+                            console.error('获取后端数据失败:', error);
+                            loadingEl.style.display = 'none';
+                            errorModal.style.display = 'flex';
+                        });
+                }
+
+                // 关闭错误模态框
+                modalBtn.addEventListener('click', function () {
+                    errorModal.style.display = 'none';
+                });
+
+                // 课程选择变化事件
+                courseSelect.addEventListener('change', function() {
+                    const newCourseId = this.value;
+                    if (newCourseId !== currentCourseId) {
+                        currentCourseId = newCourseId;
+                        loadCourseData(newCourseId);
+                        
+                        // 更新URL参数但不刷新页面
+                        const url = new URL(window.location);
+                        url.searchParams.set('course_id', newCourseId);
+                        window.history.pushState({}, '', url);
+                    }
+                });
+
+                // 搜索功能
+                function searchCapabilities() {
+                    const keyword = searchInput.value.trim().toLowerCase();
+                    if (!keyword) return;
+
+                    // 收集所有匹配的能力项
+                    const matchingNodes = [];
+
+                    function findMatchingNodes(node, keyword) {
+                        if (node.id.startsWith('cap_') && node.topic.toLowerCase().includes(keyword)) {
+                            matchingNodes.push({
+                                id: node.id,
+                                topic: node.topic,
+                                path: getNodePath(node)
+                            });
+                        }
+
+                        if (node.children) {
+                            node.children.forEach(child => findMatchingNodes(child, keyword));
+                        }
+                    }
+
+                    findMatchingNodes(processedData, keyword);
+
+                    // 显示搜索结果
+                    if (matchingNodes.length > 0) {
+                        let resultsHtml = '';
+                        matchingNodes.forEach(node => {
+                            resultsHtml += `<div class="node-list-item" data-id="${node.id}">${node.topic}</div>`;
+                        });
+                        searchResults.innerHTML = resultsHtml;
+                        searchResults.style.display = 'block';
+
+                        // 添加点击事件
+                        document.querySelectorAll('.node-list-item').forEach(item => {
+                            item.addEventListener('click', function () {
+                                const nodeId = this.getAttribute('data-id');
+                                focusOnNode(nodeId);
+                                searchResults.style.display = 'none';
+                            });
+                        });
+                    } else {
+                        searchResults.innerHTML = '<div class="node-list-item">未找到匹配的能力项</div>';
+                        searchResults.style.display = 'block';
+                    }
+                }
+
+                // 处理节点样式
+                function processNode(node) {
+                    let symbol = 'circle';
+                    let symbolSize = [60, 40];
+                    let itemStyle = {};
+
+                    if (node.id.startsWith('unit_')) {
+                        symbol = 'roundRect';
+                        symbolSize = [120, 60];
+                        itemStyle = { color: '#5470c6' };
+                    } else if (node.id.startsWith('point_')) {
+                        symbol = 'diamond';
+                        symbolSize = [100, 50];
+                        const difficulty = node.topic.match(/难度: (.*?)\)/)?.[1];
+                        if (difficulty === '高') {
+                            itemStyle = { color: '#ee6666' };
+                        } else if (difficulty === '中等') {
+                            itemStyle = { color: '#fac858' };
+                        } else {
+                            itemStyle = { color: '#73c0de' };
+                        }
+                    } else if (node.id.startsWith('cap_')) {
+                        symbol = 'hexagon';
+                        symbolSize = [80, 40];
+                        itemStyle = { color: '#91cc75' };
+                    } else if (node.id.startsWith('res_')) {
+                        symbol = 'circle';
+                        symbolSize = 20;
+                        itemStyle = { color: '#9a60b4' };
+                    } else if (node.id === 'root') {
+                        symbol = 'circle';
+                        symbolSize = [100, 50];
+                        itemStyle = { color: '#5a9cf8' };
+                    }
+
+                    node.itemStyle = itemStyle;
+                    node.symbol = symbol;
+                    node.symbolSize = symbolSize;
+                    node.label = { show: true, position: 'inside', fontSize: 12, color: '#fff' };
+
+                    if (node.id.startsWith('res_') && node.data?.url) {
+                        node.label.color = '#000';
+                        node.label.position = 'right';
+                        node.itemStyle.color = '#fff';
+                        node.itemStyle.borderColor = '#9a60b4';
+                        node.symbolSize = 15;
+                    }
+
+                    if (node.children) {
+                        node.children.forEach(child => processNode(child));
+                    }
+
+                    return node;
+                }
+
+                // 渲染思维导图
+                function renderMindmap(data) {
+                    // 如果图表已存在，先销毁
+                    if (chart) {
+                        chart.dispose();
+                    }
+                    
+                    chart = echarts.init(mindmapEl);
+
+                    const option = {
+                        title: {
+                            text: data.meta.name,
+                            subtext: `作者: ${data.meta.author}  版本: ${data.meta.version}`,
+                            left: 'center',
+                            textStyle: { fontSize: 20, color: '#2c3e50' },
+                            subtextStyle: { color: '#666' }
+                        },
+                        tooltip: {
+                            trigger: 'item',
+                            formatter: function (params) {
+                                return params.data.topic;
+                            }
+                        },
+                        series: [{
+                            type: 'tree',
+                            data: [processedData],
+                            top: '60px',
+                            bottom: '10%',
+                            layout: 'radial',
+                            symbol: 'emptyCircle',
+                            symbolSize: 7,
+                            initialTreeDepth: 2,
+                            animationDurationUpdate: 750,
+                            emphasis: {
+                                focus: 'descendant'
+                            },
+                            expandAndCollapse: true,
+                            label: {
+                                position: 'inside',
+                                verticalAlign: 'middle',
+                                align: 'center',
+                                fontSize: 12,
+                                color: '#fff'
+                            },
+                            leaves: {
+                                label: {
+                                    position: 'right',
+                                    verticalAlign: 'middle',
+                                    align: 'left'
+                                }
+                            },
+                            lineStyle: {
+                                color: '#ccc',
+                                width: 2
+                            }
+                        }]
+                    };
+
+                    chart.setOption(option);
+
+                    // 点击事件
+                    chart.on('click', function (params) {
+                        const node = params.data;
+
+                        if (node.id.startsWith('res_') && node.data?.url) {
+                            window.open(node.data.url, '_blank');
+                            return;
+                        }
+
+                        updateNodeInfo(node);
+                    });
+
+                    // 更新节点信息
+                    function updateNodeInfo(node) {
+                        let html = '';
+
+                        if (node.id.startsWith('cap_')) {
+                            html = `
+                            <h3>${node.topic}</h3>
+                            <div class="info-item">
+                                <strong>能力项ID</strong>
+                                <span>${node.id}</span>
+                            </div>
+                            <div class="info-item">
+                                <strong>能力项类型</strong>
+                                <span>${node.topic.split(':')[0]}</span>
+                            </div>
+                        `;
+
+                            if (node.children && node.children.length > 0) {
+                                html += `
+                                <div class="resources-list">
+                                    <strong>相关资源</strong>
+                            `;
+                                node.children.forEach(res => {
+                                    html += `<a href="${res.data.url}" target="_blank">${res.topic}</a>`;
+                                });
+                                html += `</div>`;
+                            }
+                        } else if (node.id.startsWith('point_')) {
+                            const difficulty = node.topic.match(/难度: (.*?)\)/)?.[1] || '未知';
+                            html = `
+                            <h3>${node.topic}</h3>
+                            <div class="info-item">
+                                <strong>难度级别</strong>
+                                <span>${difficulty}</span>
+                            </div>
+                        `;
+
+                            if (node.children && node.children.length > 0) {
+                                html += `
+                                <div class="info-item">
+                                    <strong>相关能力项</strong>
+                                    <ul style="padding-left: 20px; margin-top: 5px;">
+                            `;
+                                node.children.forEach(cap => {
+                                    html += `<li>${cap.topic}</li>`;
+                                });
+                                html += `</ul></div>`;
+                            }
+                        } else if (node.id.startsWith('unit_')) {
+                            html = `
+                            <h3>${node.topic}</h3>
+                        `;
+
+                            if (node.children && node.children.length > 0) {
+                                html += `
+                                <div class="info-item">
+                                    <strong>包含知识点</strong>
+                                    <ul style="padding-left: 20px; margin-top: 5px;">
+                            `;
+                                node.children.forEach(point => {
+                                    html += `<li>${point.topic}</li>`;
+                                });
+                                html += `</ul></div>`;
+                            }
+                        } else if (node.id === 'root') {
+                            html = `
+                            <h3>${node.topic}</h3>
+                            <div class="info-item">
+                                <strong>课程ID</strong>
+                                <span>${node.topic.split(':')[1]}</span>
+                            </div>
+                        `;
+
+                            if (node.children && node.children.length > 0) {
+                                html += `
+                                <div class="info-item">
+                                    <strong>课程单元</strong>
+                                    <ul style="padding-left: 20px; margin-top: 5px;">
+                            `;
+                                node.children.forEach(unit => {
+                                    html += `<li>${unit.topic}</li>`;
+                                });
+                                html += `</ul></div>`;
+                            }
+                        } else {
+                            html = `<p>${node.topic}</p>`;
+                        }
+
+                        infoContent.innerHTML = html;
+                    }
+
+                    // 获取节点路径
+                    function getNodePath(node) {
+                        let path = node.topic;
+                        let current = node;
+                        while (current.parent) {
+                            current = current.parent;
+                            path = current.topic + ' > ' + path;
+                        }
+                        return path;
+                    }
+
+                    // 聚焦到特定节点
+                    function focusOnNode(nodeId) {
+                        function findNode(node, id) {
+                            if (node.id === id) {
+                                return node;
+                            }
+
+                            if (node.children) {
+                                for (let child of node.children) {
+                                    const found = findNode(child, id);
+                                    if (found) return found;
+                                }
+                            }
+
+                            return null;
+                        }
+
+                        const node = findNode(processedData, nodeId);
+                        if (node) {
+                            chart.dispatchAction({
+                                type: 'highlight',
+                                seriesIndex: 0,
+                                dataIndex: node.dataIndex
+                            });
+
+                            updateNodeInfo(node);
+                        }
+                    }
+
+                    // 响应窗口大小变化
+                    window.addEventListener('resize', function () {
+                        chart.resize();
+                    });
+                }
+
+                searchBtn.addEventListener('click', searchCapabilities);
+                searchInput.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') {
+                        searchCapabilities();
+                    }
+                });
+
+                // 启动应用
+                initApp();
+            });
+        </script>
+</body>
+
+</html>
