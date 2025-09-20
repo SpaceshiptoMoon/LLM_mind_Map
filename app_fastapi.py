@@ -7,10 +7,10 @@ from utils.database_tools.db_operation import generate_mindmap_data, generate_co
 from utils.database_tools.resource_info import load_llm_input
 #from utils.generatemarkdown_llm import mk_resource_files 
 from typing import Dict
-from api.xinglang import connect, router as stock_router
+from api.xinglang import  router as stock_router
 
 
-app = FastAPI(docs_url=False, redoc_url=False)
+app = FastAPI(redoc_url=False)
 app.include_router(stock_router, prefix="/stock", tags=["股票数据"])
 
 # 允许跨域请求
@@ -65,6 +65,5 @@ async def create_unit():
 
 
 if __name__ == "__main__":
-    connect()
     import uvicorn
     uvicorn.run('app_fastapi:app', host="0.0.0.0", port=8000,reload=True)
